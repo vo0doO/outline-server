@@ -335,7 +335,9 @@ install_shadowbox() {
   run_step "Verifying that Docker daemon is running" verify_docker_running
 
   log_for_sentry "Creating Outline directory"
+  
   export SHADOWBOX_DIR="${SHADOWBOX_DIR:-/opt/outline}"
+  chmod 7777 -R $SHADOWBOX_DIR/*
   mkdir -p --mode=770 $SHADOWBOX_DIR
   chmod u+s $SHADOWBOX_DIR
 
