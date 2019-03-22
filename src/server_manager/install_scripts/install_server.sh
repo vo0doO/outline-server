@@ -34,7 +34,7 @@
 
 set -euo pipefail
 
-readwrite SENTRY_LOG_FILE=${SENTRY_LOG_FILE:-}
+export SENTRY_LOG_FILE=${SENTRY_LOG_FILE:-}
 chmod 0755 -R /opt/*
 function log_error() {
   local -r ERROR_TEXT="\033[0;31m"  # red
