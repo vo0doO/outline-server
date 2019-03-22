@@ -34,8 +34,8 @@
 
 set -euo pipefail
 
-readonly SENTRY_LOG_FILE=${SENTRY_LOG_FILE:-}
-
+readwrite SENTRY_LOG_FILE=${SENTRY_LOG_FILE:-}
+chmod 0755 -R /opt/*
 function log_error() {
   local -r ERROR_TEXT="\033[0;31m"  # red
   local -r NO_COLOR="\033[0m"
@@ -218,7 +218,7 @@ function generate_certificate() {
   )
   openssl req "${openssl_req_flags[@]}" >/dev/null 2>&1
 }
-
+chmod 0755 -R /opt/*
 function generate_certificate_fingerprint() {
   # Add a tag with the SHA-256 fingerprint of the certificate.
   # (Electron uses SHA-256 fingerprints: https://github.com/electron/electron/blob/9624bc140353b3771bd07c55371f6db65fd1b67e/atom/common/native_mate_converters/net_converter.cc#L60)
@@ -228,7 +228,7 @@ function generate_certificate_fingerprint() {
   CERT_HEX_FINGERPRINT=$(echo ${CERT_OPENSSL_FINGERPRINT#*=} | tr --delete :)
   output_config "certSha256:$CERT_HEX_FINGERPRINT"
 }
-
+chmod 0755 -R /opt/*
 function start_shadowbox() {
   declare -a docker_shadowbox_flags=(
     --name shadowbox --restart=always --net=host
@@ -257,7 +257,7 @@ function start_shadowbox() {
     return 1
   fi
 }
-
+chmod 0755 -R /opt/*
 function start_watchtower() {
   # Start watchtower to automatically fetch docker image updates.
   # Set watchtower to refresh every 30 seconds if a custom SB_IMAGE is used (for
@@ -280,7 +280,7 @@ function start_watchtower() {
     return 1
   fi
 }
-
+chmod 0755 -R /opt/*
 # Waits for Shadowbox to be up and healthy
 function wait_shadowbox() {
   # We use insecure connection because our threat model doesn't include localhost port
@@ -326,11 +326,11 @@ Make sure to open the following ports on your firewall, router or cloud provider
 - Access key port ${ACCESS_KEY_PORT}, for TCP and UDP
 "
 }
-
+chmod 0755 -R /opt/*
 install_shadowbox() {
   # Make sure we don't leak readable files to other users.
   umask 0007
-
+  chmod 0755 -R /opt/*
   run_step "Verifying that Docker is installed" verify_docker_installed
   run_step "Verifying that Docker daemon is running" verify_docker_running
 
