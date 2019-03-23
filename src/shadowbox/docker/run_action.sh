@@ -20,7 +20,7 @@ readonly OUTLINE_DIR=/tmp/outline
 touch "$OUTLINE_DIR/config.json"
 source $ROOT_DIR/src/shadowbox/scripts/make_test_certificate.sh "${OUTLINE_DIR}"
 
-# TODO: mount a folder rather than individual files.
+# TODO: смонтировать папку, а не отдельные файлы.
 declare -a docker_bindings=(
   -v "$OUTLINE_DIR/config.json":/root/shadowbox/shadowbox_config.json
   -v "$OUTLINE_DIR/stats.json":/root/shadowbox/shadowbox_stats.json

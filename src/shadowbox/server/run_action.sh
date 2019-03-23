@@ -28,6 +28,6 @@ export SB_STATE_DIR=/tmp/outline
 
 source $ROOT_DIR/src/shadowbox/scripts/make_test_certificate.sh $SB_STATE_DIR
 
-# This will fail because it expects prometheus and outline-ss-server to be in /root/shadowbox/bin.
+# Это не удастся, потому что он ожидает, что prometheus и outline-ss-server будут в /root/shadowbox/bin.
 # TODO: Fix it
 node $BUILD_DIR/shadowbox/app/server/main

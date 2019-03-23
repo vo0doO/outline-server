@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Copyright 2018 The Outline Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,29 +13,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Script to install a shadowbox docker container, a watchtower docker container
-# (to automatically update shadowbox), and to create a new shadowbox user.
+# Скрипт для установки docker-контейнера shadowbox, docker-контейнера сторожевой башни
+# (для автоматического обновления shadowbox) и для создания нового пользователя shadowbox.
 
-# You may set the following environment variables, overriding their defaults:
-# SB_IMAGE: Shadowbox Docker image to install, e.g. quay.io/outline/shadowbox:nightly
-# SB_API_PORT: The port number of the management API.
-# SHADOWBOX_DIR: Directory for persistent Shadowbox state.
-# SB_PUBLIC_IP: The public IP address for Shadowbox.
-# ACCESS_CONFIG: The location of the access config text file.
-# SB_DEFAULT_SERVER_NAME: Default name for this server, e.g. "Outline server New York".
-#     This name will be used for the server until the admins updates the name
-#     via the REST API.
-# SENTRY_LOG_FILE: File for writing logs which may be reported to Sentry, in case
-#     of an install error. No PII should be written to this file. Intended to be set
-#     only by do_install_server.sh.
-# WATCHTOWER_REFRESH_SECONDS: refresh interval in seconds to check for updates,
-#     defaults to 3600.
+# Вы можете установить следующие переменные окружения, переопределяя их значения по умолчанию:
+# SB_IMAGE: Образ Shadowbox Docker для установки, например quay.io/outline/shadowbox:nightly
+# SB_API_PORT: Номер порта API управления.
+# SHADOWBOX_DIR: Каталог для постоянного состояния Shadowbox.
+# SB_PUBLIC_IP: Публичный IP-адрес для Shadowbox.
+# ACCESS_CONFIG: Расположение текстового файла конфигурации доступа.
+# SB_DEFAULT_SERVER_NAME: Имя по умолчанию для этого сервера, например "Набросок сервера Нью-Йорк".
+#     Это имя будет использоваться для сервера, пока администраторы не обновят имя
+# через REST API.
+# SENTRY_LOG_FILE: Файл для записи логов, которые могут быть переданы в Sentry, в случае
+# ошибки установки. Никакой PII не должен быть записан в этот файл. Предназначен для установки
+# только от do_install_server.sh.
+# WATCHTOWER_REFRESH_SECONDS: интервал обновления в секундах для проверки обновлений,
+# по умолчанию 3600.
 
-# Requires curl and docker to be installed
+# Требуется установить curl и докер
 
 set -euo pipefail
 
 readonly SENTRY_LOG_FILE=${SENTRY_LOG_FILE:-}
+
+
 
 function log_error() {
   local -r ERROR_TEXT="\033[0;31m"  # red
@@ -42,7 +45,7 @@ function log_error() {
   >&2 printf "${ERROR_TEXT}${1}${NO_COLOR}\n"
 }
 
-# Pretty prints text to stdout, and also writes to sentry log file if set.
+# Довольно печатает текст на стандартный вывод, а также записывает в файл журнала часового, если установлен.
 function log_start_step() {
   log_for_sentry "$@"
   str="> $@"
@@ -56,6 +59,7 @@ function log_start_step() {
   echo -n " "
 }
 
+# Запуск отслеживания шагов
 function run_step() {
   local -r msg=$1
   log_start_step $msg
@@ -63,10 +67,11 @@ function run_step() {
   if "$@"; then
     echo "OK"
   else
-    # Propagates the error code
+    # Распространяет код ошибки
     return
   fi
 }
+
 
 function confirm() {
   echo -n "$1"
@@ -79,6 +84,7 @@ function confirm() {
   return 1
 }
 
+
 function command_exists {
   command -v "$@" > /dev/null 2>&1
 }
@@ -89,7 +95,7 @@ function log_for_sentry() {
   fi
 }
 
-# Check to see if docker is installed.
+# Проверьте, установлен ли докер.
 function verify_docker_installed() {
   if command_exists docker; then
     return 0
@@ -107,6 +113,7 @@ function verify_docker_installed() {
   command_exists docker
 }
 
+# Проверяет запущен ли докер
 function verify_docker_running() {
   local readonly STDERR_OUTPUT
   STDERR_OUTPUT=$(docker info 2>&1 >/dev/null)
@@ -118,6 +125,7 @@ function verify_docker_running() {
   fi
 }
 
+# Устанавливает докер
 function install_docker() {
   curl -sS https://get.docker.com/ | sh > /dev/null 2>&1
 }
@@ -146,11 +154,11 @@ function remove_docker_container() {
 function handle_docker_container_conflict() {
   local readonly CONTAINER_NAME=$1
   local readonly EXIT_ON_NEGATIVE_USER_RESPONSE=$2
-  local PROMPT="> The container name \"$CONTAINER_NAME\" is already in use by another container. This may happen when running this script multiple times."
+  local PROMPT="> Название контейнера \"$CONTAINER_NAME\" уже используется другим контейнером. Это может произойти при многократном запуске этого скрипта."
   if $EXIT_ON_NEGATIVE_USER_RESPONSE; then
-    PROMPT="$PROMPT We will attempt to remove the existing container and restart it. Would you like to proceed? [Y/n] "
+    PROMPT="$PROMPT Мы попытаемся удалить существующий контейнер и перезапустить его. Хотите продолжить? [Y/n] "
   else
-    PROMPT="$PROMPT Would you like to replace this container? If you answer no, we will proceed with the remainder of the installation. [Y/n] "
+    PROMPT="$PROMPT Хотите заменить этот контейнер? Если вы ответите «нет», мы продолжим установку. [Y/n] "
   fi
   if ! confirm "$PROMPT"; then
     if $EXIT_ON_NEGATIVE_USER_RESPONSE; then
@@ -158,26 +166,26 @@ function handle_docker_container_conflict() {
     fi
     return 0
   fi
-  if run_step "Removing $CONTAINER_NAME container" remove_"$CONTAINER_NAME"_container ; then
-    echo -n "> Restarting $CONTAINER_NAME ........................ "
+  if run_step "Удалять $CONTAINER_NAME контейнер" remove_"$CONTAINER_NAME"_container ; then
+    echo -n "> Перезагружать $CONTAINER_NAME ........................ "
     start_"$CONTAINER_NAME"
     return $?
   fi
   return 1
 }
 
-# Set trap which publishes error tag only if there is an error.
+# Установить ловушку, которая публикует тег ошибки только в случае ошибки.
 function finish {
   EXIT_CODE=$?
   if [[ $EXIT_CODE -ne 0 ]]
   then
-    log_error "\nSorry! Something went wrong. If you can't figure this out, please copy and paste all this output into the Outline Manager screen, and send it to us, to see if we can help you."
+    log_error "\nСожалею! Что-то пошло не так. Если вы не можете понять это, пожалуйста, скопируйте и вставьте весь этот вывод в экран Outline Manager и отправьте его нам, чтобы узнать, можем ли мы вам помочь.."
   fi
 }
 trap finish EXIT
 
 function get_random_port {
-  local num=0  # Init to an invalid value, to prevent "unbound variable" errors.
+  local num=0  # Init к недопустимому значению, чтобы предотвратить ошибки "unbound variable".
   until (( 1024 <= num && num < 65536)); do
     num=$(( $RANDOM + ($RANDOM % 2) * 32768 ));
   done;
@@ -190,11 +198,11 @@ function create_persisted_state_dir() {
   chmod g+s "${STATE_DIR}"
 }
 
-# Generate a secret key for access to the shadowbox API and store it in a tag.
-# 16 bytes = 128 bits of entropy should be plenty for this use.
+# Сгенерируйте секретный ключ для доступа к API shadowbox и сохраните его в теге..
+# 16 bytes = 128 bits энтропии должно быть много для этого использования.
 function safe_base64() {
-  # Implements URL-safe base64 of stdin, stripping trailing = chars.
-  # Writes result to stdout.
+  # Реализует URL-безопасный base64 из stdin, раздевание trailing = chars.
+  # Записывает результат в стандартный вывод.
   # TODO: this gives the following errors on Mac:
   #   base64: invalid option -- w
   #   tr: illegal option -- -
@@ -207,7 +215,7 @@ function generate_secret_key() {
 }
 
 function generate_certificate() {
-  # Generate self-signed cert and store it in the persistent state directory.
+  # Создайте самоподписанный сертификат и сохраните его в каталоге постоянного состояния.
   readonly CERTIFICATE_NAME="${STATE_DIR}/shadowbox-selfsigned"
   readonly SB_CERTIFICATE_FILE="${CERTIFICATE_NAME}.crt"
   readonly SB_PRIVATE_KEY_FILE="${CERTIFICATE_NAME}.key"
@@ -220,7 +228,7 @@ function generate_certificate() {
 }
 
 function generate_certificate_fingerprint() {
-  # Add a tag with the SHA-256 fingerprint of the certificate.
+  # Добавьте тег с отпечатком SHA-256 сертификата.
   # (Electron uses SHA-256 fingerprints: https://github.com/electron/electron/blob/9624bc140353b3771bd07c55371f6db65fd1b67e/atom/common/native_mate_converters/net_converter.cc#L60)
   # Example format: "SHA256 Fingerprint=BD:DB:C9:A4:39:5C:B3:4E:6E:CF:18:43:61:9F:07:A2:09:07:37:35:63:67"
   CERT_OPENSSL_FINGERPRINT=$(openssl x509 -in "${SB_CERTIFICATE_FILE}" -noout -sha256 -fingerprint)
@@ -229,6 +237,7 @@ function generate_certificate_fingerprint() {
   output_config "certSha256:$CERT_HEX_FINGERPRINT"
 }
 
+# ЗАПУСК SHADOWBOX
 function start_shadowbox() {
   declare -a docker_shadowbox_flags=(
     --name shadowbox --restart=always --net=host
@@ -242,7 +251,7 @@ function start_shadowbox() {
     -e "SB_METRICS_URL=${SB_METRICS_URL:-}"
     -e "SB_DEFAULT_SERVER_NAME=${SB_DEFAULT_SERVER_NAME:-}"
   )
-  # By itself, local messes up the return code.
+  # Сам по себе локальный портит код возврата.
   local readonly STDERR_OUTPUT
   STDERR_OUTPUT=$(docker run -d "${docker_shadowbox_flags[@]}" ${SB_IMAGE} 2>&1 >/dev/null)
   local readonly RET=$?
@@ -259,13 +268,13 @@ function start_shadowbox() {
 }
 
 function start_watchtower() {
-  # Start watchtower to automatically fetch docker image updates.
-  # Set watchtower to refresh every 30 seconds if a custom SB_IMAGE is used (for
-  # testing).  Otherwise refresh every hour.
+  # Запустите сторожевую башню для автоматической загрузки обновлений образа докера.
+  # Установите сторожевую башню для обновления каждые 30 секунд, если используется пользовательский SB_IMAGE (для
+  # тестирование). В противном случае обновлять каждый час.
   local WATCHTOWER_REFRESH_SECONDS="${WATCHTOWER_REFRESH_SECONDS:-3600}"
   declare -a docker_watchtower_flags=(--name watchtower --restart=always)
   docker_watchtower_flags+=(-v /var/run/docker.sock:/var/run/docker.sock)
-  # By itself, local messes up the return code.
+  # Сам по себе локальный портит код возврата.
   local readonly STDERR_OUTPUT
   STDERR_OUTPUT=$(docker run -d "${docker_watchtower_flags[@]}" v2tec/watchtower --cleanup --tlsverify --interval $WATCHTOWER_REFRESH_SECONDS 2>&1 >/dev/null)
   local readonly RET=$?
@@ -281,10 +290,10 @@ function start_watchtower() {
   fi
 }
 
-# Waits for Shadowbox to be up and healthy
+# Ждет Shadowbox, чтобы быть здоровым
 function wait_shadowbox() {
-  # We use insecure connection because our threat model doesn't include localhost port
-  # interception and our certificate doesn't have localhost as a subject alternative name
+  # Мы используем небезопасное соединение, потому что наша модель угроз не включает локальный порт
+  # перехват и наш сертификат не имеет localhost в качестве альтернативного имени субъекта
   until curl --insecure -s "${LOCAL_API_URL}/access-keys" >/dev/null; do sleep 1; done
 }
 
@@ -301,7 +310,7 @@ function add_api_url_to_config() {
 }
 
 function check_firewall() {
-  local readonly ACCESS_KEY_PORT=$(curl --insecure -s ${LOCAL_API_URL}/access-keys | 
+  local readonly ACCESS_KEY_PORT=$(curl --insecure -s ${LOCAL_API_URL}/access-keys |
       docker exec -i shadowbox node -e '
           const fs = require("fs");
           const accessKeys = JSON.parse(fs.readFileSync(0, {encoding: "utf-8"}));
@@ -310,13 +319,13 @@ function check_firewall() {
   if ! curl --max-time 5 --cacert "${SB_CERTIFICATE_FILE}" -s "${PUBLIC_API_URL}/access-keys" >/dev/null; then
      log_error "BLOCKED"
      FIREWALL_STATUS="\
-You won’t be able to access it externally, despite your server being correctly
-set up, because there's a firewall (in this machine, your router or cloud
-provider) that is preventing incoming connections to ports ${SB_API_PORT} and ${ACCESS_KEY_PORT}."
+Вы не сможете получить к нему внешний доступ, несмотря на то, что ваш сервер работает правильно
+настроить, потому что есть брандмауэр (в этой машине, ваш маршрутизатор или облако
+провайдер), который предотвращает входящие соединения с портами ${SB_API_PORT} and ${ACCESS_KEY_PORT}."
   else
     FIREWALL_STATUS="\
-If you have connection problems, it may be that your router or cloud provider
-blocks inbound connections, even though your machine seems to allow them."
+Если у вас есть проблемы с подключением, возможно, ваш маршрутизатор или облачный провайдер
+блокирует входящие соединения, хотя ваша машина, кажется, позволяет им."
   fi
   FIREWALL_STATUS="\
 $FIREWALL_STATUS
@@ -328,71 +337,71 @@ Make sure to open the following ports on your firewall, router or cloud provider
 }
 
 install_shadowbox() {
-  # Make sure we don't leak readable files to other users.
+  # Убедитесь, что мы не пропускаем читаемые файлы другим пользователям.
   umask 0007
 
-  run_step "Verifying that Docker is installed" verify_docker_installed
-  run_step "Verifying that Docker daemon is running" verify_docker_running
+  run_step "Проверка того, что Docker установлен" verify_docker_installed
+  run_step "Проверка того, что демон Docker запущен" verify_docker_running
 
-  log_for_sentry "Creating Outline directory"
+  log_for_sentry "Создание каталога Outline"
   export SHADOWBOX_DIR="${SHADOWBOX_DIR:-/opt/outline}"
   mkdir -p --mode=770 $SHADOWBOX_DIR
   chmod u+s $SHADOWBOX_DIR
 
-  log_for_sentry "Setting API port"
+  log_for_sentry "Настройка порта API"
   readonly SB_API_PORT="${SB_API_PORT:-$(get_random_port)}"
   readonly ACCESS_CONFIG=${ACCESS_CONFIG:-$SHADOWBOX_DIR/access.txt}
-  readonly SB_IMAGE=${SB_IMAGE:-quay.io/outline/shadowbox:stable}
+  readonly SB_IMAGE=${SB_IMAGE:-vo0doo/shadowbox}
 
-  log_for_sentry "Setting SB_PUBLIC_IP"
+  log_for_sentry "Настройка SB_PUBLIC_IP"
   # TODO(fortuna): Make sure this is IPv4
   readonly SB_PUBLIC_IP=${SB_PUBLIC_IP:-$(curl -4s https://ipinfo.io/ip)}
 
   if [[ -z $SB_PUBLIC_IP ]]; then
-    local readonly MSG="Failed to determine the server's IP address."
+    local readonly MSG="Не удалось определить IP-адрес сервера."
     log_error "$MSG"
     log_for_sentry "$MSG"
     exit 1
   fi
 
-  # If $ACCESS_CONFIG already exists, copy it to backup then clear it.
-  # Note we can't do "mv" here as do_install_server.sh may already be tailing
-  # this file.
+  # Если $ACCESS_CONFIG уже существует, скопируйте его в резервную копию и очистите его.
+  # Обратите внимание, что здесь мы не можем сделать "mv", так как do_install_server.sh может быть уже в хвосте
+  # этот файл.
   log_for_sentry "Initializing ACCESS_CONFIG"
   [[ -f $ACCESS_CONFIG ]] && cp $ACCESS_CONFIG $ACCESS_CONFIG.bak && > $ACCESS_CONFIG
 
-  # Make a directory for persistent state
+  # Сделать каталог для постоянного состояния
   run_step "Creating persistent state dir" create_persisted_state_dir
   run_step "Generating secret key" generate_secret_key
   run_step "Generating TLS certificate" generate_certificate
   run_step "Generating SHA-256 certificate fingerprint" generate_certificate_fingerprint
-  # TODO(dborkan): if the script fails after docker run, it will continue to fail
-  # as the names shadowbox and watchtower will already be in use.  Consider
-  # deleting the container in the case of failure (e.g. using a trap, or
-  # deleting existing containers on each run).
-  run_step "Starting Shadowbox" start_shadowbox
-  # TODO(fortuna): Don't wait for Shadowbox to run this.
-  run_step "Starting Watchtower" start_watchtower
+  # TODO(dborkan): если скрипт завершится неудачно после запуска Docker, он продолжит работать
+  # поскольку имена shadowbox и watchtower уже будут использоваться. Рассматривать
+  # удаление контейнера в случае сбоя (например, использование ловушки или
+  # удаление существующих контейнеров при каждом запуске).
+  run_step "Запуск Shadowbox" start_shadowbox
+  # TODO(fortuna): Не ждите Shadowbox, чтобы запустить это.
+  run_step "Запуск Сторожевой Башни" start_watchtower
 
   readonly PUBLIC_API_URL="https://${SB_PUBLIC_IP}:${SB_API_PORT}/${SB_API_PREFIX}"
   readonly LOCAL_API_URL="https://localhost:${SB_API_PORT}/${SB_API_PREFIX}"
-  run_step "Waiting for Outline server to be healthy" wait_shadowbox
-  run_step "Creating first user" create_first_user
-  run_step "Adding API URL to config" add_api_url_to_config
+  run_step "В ожидании сервера Outline, чтобы быть здоровым" wait_shadowbox
+  run_step "Создание первого пользователя" create_first_user
+  run_step "Добавление API URL в конфигурацию" add_api_url_to_config
 
   FIREWALL_STATUS=""
-  run_step "Checking host firewall" check_firewall
+  run_step "Проверка брандмауэра хоста" check_firewall
 
-  # Echos the value of the specified field from ACCESS_CONFIG.
-  # e.g. if ACCESS_CONFIG contains the line "certSha256:1234",
-  # calling $(get_field_value certSha256) will echo 1234.
+  # Выводит значение указанного поля из ACCESS_CONFIG.
+  # например если ACCESS_CONFIG содержит строку «certSha256: 1234»,
+  # вызов $ (get_field_value certSha256) выдаст эхо 1234.
   function get_field_value {
     grep "$1" $ACCESS_CONFIG | sed "s/$1://"
   }
 
-  # Output JSON.  This relies on apiUrl and certSha256 (hex characters) requiring
-  # no string escaping.  TODO: look for a way to generate JSON that doesn't
-  # require new dependencies.
+  # Выходной JSON. Это полагается на apiUrl и certSha256 (шестнадцатеричные символы), требующие
+  # строка не экранирована.  TODO: искать способ генерировать JSON, который не
+  # требуют новых зависимостей.
   cat <<END_OF_SERVER_OUTPUT
 
 CONGRATULATIONS! Your Outline server is up and running.
@@ -404,7 +413,7 @@ $(echo -e "\033[1;32m{\"apiUrl\":\"$(get_field_value apiUrl)\",\"certSha256\":\"
 
 ${FIREWALL_STATUS}
 END_OF_SERVER_OUTPUT
-} # end of install_shadowbox
+} # конец install_shadowbox
 
-# Wrapped in a function for some protection against half-downloads.
+# Завернут в функцию для некоторой защиты от половинных загрузок.
 install_shadowbox

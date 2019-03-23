@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// @ts-ignore
 import * as uuidv4 from 'uuid/v4';
 
 import * as json_config from '../infrastructure/json_config';

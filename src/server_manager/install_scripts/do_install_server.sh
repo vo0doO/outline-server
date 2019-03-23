@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Copyright 2018 The Outline Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -64,9 +65,9 @@ if [[ -z "${DO_ACCESS_TOKEN}" ]]; then
 fi
 
 # DigitalOcean's Metadata API base url.
-# This URL only supports HTTP (not HTTPS) requests, however it is a local link
-# address so not at risk for man-in-the-middle attacks or eavesdropping.
-# More detail at https://serverfault.com/questions/427018/what-is-this-ip-address-169-254-169-254
+# Этот URL поддерживает только запросы HTTP (не HTTPS), однако это локальная ссылка
+# адрес так, чтобы не подвергаться риску для нападения человека в середине или подслушивания.
+# Более подробно на https://serverfault.com/questions/427018/what-is-this-ip-address-169-254-169-254
 readonly DO_METADATA_URL="http://169.254.169.254/metadata/v1"
 
 function cloud::public_ip() {
@@ -188,7 +189,7 @@ wait $install_pid
 
 # Install the DigitalOcean Agent, for improved monitoring:
 # https://www.digitalocean.com/docs/monitoring/quickstart/#enable-the-digitalocean-agent-on-existing-droplets
-# 
+#
 # Since the server manager looks only for the tags created in the previous
 # step, this does not slow down server creation.
 curl -sSL https://agent.digitalocean.com/install.sh | sh

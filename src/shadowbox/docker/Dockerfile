@@ -12,20 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# See versions at https://hub.docker.com/_/node/
+# Посмотреть версии наhttps://hub.docker.com/_/node/
 FROM node:8.14.0-alpine
 
-# Versions can be found at https://github.com/Jigsaw-Code/outline-ss-server/releases
+# Версии можно найти наhttps://github.com/Jigsaw-Code/outline-ss-server/releases
 ARG SS_VERSION=1.0.4
 
-# Save metadata on the software versions we are using.
+# Сохраните метаданные в версиях программного обеспечения, которые мы используем.
 LABEL shadowbox.node_version=8.14.0
 LABEL shadowbox.outline-ss-server_version="${SS_VERSION}"
 
 ARG GITHUB_RELEASE
 LABEL shadowbox.github.release="${GITHUB_RELEASE}"
 
-# We use curl to detect the server's public IP.
+# Мы используем curl для определения публичного IP-адреса сервера.
 RUN apk add --no-cache curl
 
 COPY src/shadowbox/scripts scripts/
@@ -39,14 +39,14 @@ RUN mkdir bin && curl -SsL https://github.com/Jigsaw-Code/outline-ss-server/rele
 COPY third_party/prometheus/prometheus ./bin/
 COPY src/shadowbox/package.json .
 COPY yarn.lock .
-# TODO: Replace with plain old "yarn" once the base image is fixed:
+# TODO: Замените на старую "пряжу", как только базовое изображение будет исправлено:
 #       https://github.com/nodejs/docker-node/pull/639
 RUN /opt/yarn-v$YARN_VERSION/bin/yarn install --prod
 
-# Install management service
+# Установить службу управления
 COPY build/shadowbox/app app/
 
-# Create default state directory.
+# Создать каталог состояния по умолчанию.
 RUN mkdir -p /root/shadowbox/persisted-state
 
 COPY src/shadowbox/docker/cmd.sh /

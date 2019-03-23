@@ -8,9 +8,9 @@ tags:
     description: Server-level functions
   - name: Access Key
     description: Access key functions
-servers: 
+servers:
   - url: https://myserver/SecretPath
-    description: Example URL. Change to your own server.  
+    description: Example URL. Change to your own server.
 paths:
   /server:
     get:
@@ -35,7 +35,7 @@ paths:
         - Server
       requestBody:
         required: true
-        content: 
+        content:
           application/json:
             schema:
               type: object
@@ -61,7 +61,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AccessKey"
+                $ref: "#/components/schemas
+/AccessKey"
               examples:
                 '0':
                   value: >-
@@ -137,7 +138,7 @@ paths:
             type: string
       requestBody:
         required: true
-        content: 
+        content:
           application/json:
             schema:
               type: object
@@ -193,7 +194,7 @@ paths:
         - Server
       requestBody:
         required: true
-        content: 
+        content:
           application/json:
             schema:
               type: object
@@ -208,7 +209,7 @@ paths:
           description: Setting successful
         '400':
           description: Invalid request
-          
+
 components:
   schemas:
     Server:

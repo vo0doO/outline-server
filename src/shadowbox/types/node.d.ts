@@ -19,6 +19,9 @@ declare module 'dns' {
   export function getServers(): string[];
 }
 
+interface ChildProcess {
+}
+
 // https://nodejs.org/dist/latest-v8.x/docs/api/child_process.html#child_process_child_process_exec_command_options_callback
 declare module 'child_process' {
   export interface ExecError { code: number; }
