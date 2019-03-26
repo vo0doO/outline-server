@@ -23,7 +23,7 @@ export interface DigitalOceanDropletSpecification {
   tags: string[];
 }
 
-// See definition and example at
+// См. Определение и пример на
 // https://developers.digitalocean.com/documentation/v2/#retrieve-an-existing-droplet-by-id
 export type DropletInfo = Readonly < {
   id: number;
@@ -46,7 +46,7 @@ export type DropletInfo = Readonly < {
 }
 > ;
 
-// Reference:
+// ссылка:
 // https://developers.digitalocean.com/documentation/v2/#get-user-information
 export type Account = Readonly < {
   email: string;

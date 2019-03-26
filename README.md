@@ -2,90 +2,87 @@
 
 [![Build Status](https://travis-ci.org/Jigsaw-Code/outline-server.svg?branch=master)](https://travis-ci.org/Jigsaw-Code/outline-server)
 
-This repository has all the code needed to create and manage Outline servers on
-DigitalOcean. An Outline server runs instances of Shadowsocks proxies and
-provides an API used by the Outline Manager application.
-
-Go to https://getoutline.org for ready-to-use versions of the software.
+Этот репозиторий содержит весь код, необходимый для создания и управления серверами Outline на
+DigitalOcean. Сервер Outline запускает экземпляры прокси Shadowsocks и
+предоставляет API, используемый приложением Outline Manager.
 
 ## Components
 
-The system comprises the following components:
-
-- **Outline Server**: a proxy server that runs a Shadowsocks instance for each
-  access key and a REST API to manage the access keys. The Outline Server runs
-  in a Docker container in the host machine.
+Система состоит из следующих компонентов:
+- **Outline Server**: прокси-сервер, который запускает экземпляр Shadowsocks для каждого
+  ключ доступа и REST API для управления ключами доступа. Outline Server работает
+  в контейнере Docker на хост-машине.
 
   See [`src/shadowbox`](src/shadowbox)
 
-- **Outline Manager:** an [Electron](https://electronjs.org/) application that
-  can create Outline Servers on the cloud and talks to their access key
-  management API to manage who has access to the server.
+- **Outline Manager:** [Электрон] (https://electronjs.org/) приложение, которое
+  может создавать Outline-серверы в облаке и общаться с их ключом доступа
+  API управления для управления доступом к серверу.
 
   See [`src/server_manager`](src/server_manager)
 
-- **Metrics Server:** a REST service that the Outline Server talks to
-  if the user opts-in to anonymous metrics sharing.
+- **Metrics Server:** REST-сервис, с которым общается Outline Server
+  если пользователь включил анонимный обмен метриками.
 
   See [`src/metrics_server`](src/metrics_server)
 
 
 ## Code Prerequisites
 
-In order to build and run the code, you need the following installed:
+Для сборки и запуска кода вам необходимо установить следующее:
   - [Node](https://nodejs.org/)
   - [Yarn](https://yarnpkg.com/en/docs/install)
-  - [Wine](https://www.winehq.org/download), if you would like to generate binaries for Windows.
+  - [Wine](https://www.winehq.org/download), если вы хотите сгенерировать двоичные файлы для Windows.
 
-Then you need to install all the NPM package dependencies:
+Затем вам нужно установить все зависимости пакета NPM:
 ```
 yarn
 ```
 
-Note: If you are using root (not recommended on your dev machine, maybe in a container), you need to add `{ "allow_root": true }` to your `/root/.bowerrc` file.
+Примечание: если вы используете root (не рекомендуется на вашем компьютере разработчика, может быть, в контейнере), вам нужно добавить `{" allow_root ": true}` в ваш файл `/ root / .bowerrc`.
 
-This project uses [Yarn workspaces](https://yarnpkg.com/blog/2017/08/02/introducing-workspaces/).
+Этот проект использует [Yarn workspaces](https://yarnpkg.com/blog/2017/08/02/introducing-workspaces/).
 
 
 ## Build System
 
-We have a very simple build system based on package.json scripts that are called using `yarn`
-and a thin wrapper for what we call build "actions".
+У нас очень простая система сборки, основанная на сценариях `package.json, которые вызываются с помощью `yarn`
+и тонкая оболочка для того, что мы называем "действиями" сборки.
 
-We've defined a `do` package.json script that takes an `action` parameter:
+Мы определили`do`скрипт package.json, который принимает `action` параметр:
 ```shell
 yarn do $ACTION
 ```
 
-This command will define a `do_action()` function and call `${ACTION}_action.sh`, which must exist.
-The called action script can use `do_action` to call its dependencies. The $ACTION parameter is
-always resolved from the project root, regardless of the caller location.
+Эта команда определит функцию `do_action ()` и вызовет `$ {ACTION} _action.sh`, которая должна существовать.
+Сценарий вызываемого действия может использовать `do_action` для вызова своих зависимостей. Параметр $ ACTION
+всегда разрешается из корня проекта, независимо от местоположения вызывающего.
 
-The idea of `do_action` is to keep the build logic next to where the relevant code is.
-It also defines two environmental variables:
+Идея `do_action` состоит в том, чтобы держать логику сборки рядом с соответствующим кодом.
+Он также определяет две переменные среды:
 
-- ROOT_DIR: the root directory of the project, as an absolute path.
-- BUILD_DIR: where the build output should go, as an absolute path.
+- ROOT_DIR: корневой каталог проекта, как абсолютный путь.
+- BUILD_DIR: куда должен идти вывод сборки, как абсолютный путь.
 
 ### Build output
 
-Building creates the following directories under `build/`:
-- `web_app/`: The Manager web app.
-  - `static/`: The standalone web app static files. This is what one deploys to a web server or runs with Electron.
-- `electron_app/`: The launcher desktop Electron app
-  - `static/`: The Manager Electron app to run with the electron command-line
-  - `bundled/`: The Electron app bundled to run standalone on each platform
-  - `packaged/`: The Electron app bundles packaged as single files for distribution
-- `invite_page`: the Invite Page
-  - `static`: The standalone static files to be deployed
-- `shadowbox`: The Proxy Server
+Building создает следующие каталоги под `build/`:
+- `web_app/`: Веб-приложение Manager.
+  - `static/`: Статические файлы автономного веб-приложения. Это то, что вы развертываете на веб-сервере или работает с Electron.
+- `electron_app/`: Настольное приложение Electron для запуска
+  - `static/`: Приложение Manager Electron для запуска из командной строки электронов
+  - `bundled/`: Приложение Electron для автономной работы на каждой платформе
+  - `packaged/`: Пакеты приложений Electron упакованы как отдельные файлы для распространения
+- `invite_page`: страница приглашения
+  - `static`: Автономные статические файлы для развертывания
+- `shadowbox`: Прокси-сервер
 
-The directories have subdirectories for intermediate output:
-- `ts/`: Autogenerated Typescript files
-- `js/`: The output from compiling Typescript code
-- `browserified/`: The output of browserifying the JavaScript code
+В каталогах есть подкаталоги для промежуточного вывода:
+- `ts/`: Автоматически сгенерированные файлы Typescript
+- `js/`: Вывод из компиляции кода Typescript
+- `browserified/`: Вывод браузерного кода JavaScript
 
-To clean up:
+для хорошо сложенный успех:
 ```
 yarn run clean
 ```

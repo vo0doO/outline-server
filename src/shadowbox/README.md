@@ -1,33 +1,33 @@
 # Outline Server
 
-The internal name for the Outline server is "Shadowbox". It is a server set up
-that runs a user management API and starts Shadowsocks instances on demand.
+Внутреннее имя для сервера Outline - «Shadowbox». Это сервер настроен
+который запускает API управления пользователями и запускает экземпляры Shadowsocks по требованию.
 
-It aims to make it as easy as possible to set up and share a Shadowsocks
-server. It's managed by the Outline Manager and used as proxy by the Outline
-client apps. Shadowbox is also compatible with standard Shadowsocks clients.
+Он призван максимально упростить настройку Shadowsocks и обмен ими
+сервер. Он управляется Outline Manager и используется в качестве прокси-сервера Outline.
+клиентские приложения. Shadowbox также совместим со стандартными клиентами Shadowsocks.
 
 ## Self-hosted installation
 
-To install and run Shadowbox on your own server, run
+Чтобы установить и запустить Shadowbox на вашем собственном сервере, запустите
 ```
 sudo bash -c "$(wget -qO- https://raw.githubusercontent.com/Jigsaw-Code/outline-server/master/src/server_manager/install_scripts/install_server.sh)"
 ```
 
-Use `sudo --preserve-env` if you need to pass environment variables. Use `bash -x` if you need to debug the installation.
+использовать `sudo --preserve-env` если вам нужно передать переменные среды. использование `bash -x` если вам нужно отладить установку.
 
-## Running from source code
+## Запуск из исходного кода
 
-### Prerequisites
+### Предпосылки
 
-Besides [Node](https://nodejs.org/en/download/) and [Yarn](https://yarnpkg.com/en/docs/install), you will also need:
+кроме [Node](https://nodejs.org/en/download/) и [Yarn](https://yarnpkg.com/en/docs/install), вам также понадобится:
 
 1. [Docker 1.13+](https://docs.docker.com/engine/installation/)
 1. [docker-compose 1.11+](https://docs.docker.com/compose/install/)
 
-### Running Shadowbox as a Node.js app
+### Запуск Shadowbox как Node.js app
 
-> **NOTE:**: This is currently broken. Use the docker option instead.
+> **NOTE:**: Это в настоящее время сломано. Вместо этого используйте опцию докера.
 
 Build and run the server as a Node.js app:
 ```
@@ -35,25 +35,25 @@ yarn do shadowbox/server/run
 ```
 The output will be at `build/shadowbox/app`.
 
-### Running Shadowbox as a Docker container
+### Запуск Shadowbox в качестве Docker-контейнера
 
-> **NOTE**: This does not currently work in Docker on Mac due to use of
-`--network=host` and integrity checks failing. For now, please see the Manual
-testing section below.
+> **NOTE**: В настоящее время это не работает в Docker на Mac из-за использования
+`--network=host` и проверки целостности не пройдены. А пока смотрите руководство
+раздел тестирования ниже.
 
-### With docker command
+### С помощью команды docker
 
-Build the image and run server:
+Построить образ и запустить сервер:
 ```
 yarn do shadowbox/docker/run
 ```
 
-You should be able to successfully query the management API:
+Вы должны быть в состоянии успешно запросить API управления:
 ```
 curl --insecure https://[::]:8081/TestApiPrefix/server
 ```
 
-To build the image only:
+Чтобы построить только изображение:
 ```
 yarn do shadowbox/docker/build
 ```
