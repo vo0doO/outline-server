@@ -21,7 +21,7 @@ import * as path from 'path';
 import * as request from 'request';
 
 const REGISTERED_REDIRECTS: Array<{clientId: string, port: number}> = [
-  {clientId: '7f84935771d49c2331e1cfb60c7827e20eaf128103435d82ad20b3c53253b721', port: 55189},
+  {clientId: '23b579be1d5e8ad7a44e1a4fab5e7f23118ad7559923e63af7008eb428c039eb', port: 55189},
   {clientId: '4af51205e8d0d8f4a5b84a6b5ca9ea7124f914a5621b6a731ce433c2c7db533b', port: 60434},
   {clientId: '706928a1c91cbd646c4e0d744c8cbdfbf555a944b821ac7812a7314a4649683a', port: 61437}
 ];
@@ -36,8 +36,8 @@ interface ServerError extends Error {
   code: string;
 }
 
-// Makes server listen on each of the listed ports until there's one open.
-// Returns the index of the port used.
+// Заставляет сервер прослушивать каждый из перечисленных портов, пока не будет открыт один.
+// Возвращает индекс используемого порта.
 function listenOnFirstPort(server: http.Server, portList: number[]): Promise<number> {
   let portIdx = 0;
   return new Promise((resolve, reject) => {
@@ -63,7 +63,7 @@ function listenOnFirstPort(server: http.Server, portList: number[]): Promise<num
   });
 }
 
-// See https://developers.digitalocean.com/documentation/v2/#get-user-information
+// Увидеть https://developers.digitalocean.com/documentation/v2/#get-user-information
 interface Account {
   droplet_limit: number;
   floating_ip_limit: number;
@@ -74,7 +74,7 @@ interface Account {
   status_message: string;
 }
 
-// Queries the DigitalOcean API for the user account information.
+// Запрашивает API DigitalOcean для получения информации об учетной записи пользователя..
 function getAccount(accessToken: string): Promise<Account> {
   return new Promise((resolve, reject) => {
     request(
@@ -100,8 +100,8 @@ function closeWindowHtml(messageHtml: string) {
   return `<html><script>window.close()</script><body>${messageHtml}. You can close this window.</body></html>`;
 }
 
-// Runs the DigitalOcean oauth flow and returns the access token.
-// See https://developers.digitalocean.com/documentation/oauth/ for the OAuth API.
+// Запускает oauth-поток DigitalOcean и возвращает токен доступа..
+// Увидеть https://developers.digitalocean.com/documentation/oauth/ для OAuth API.
 export function runOauth(): OauthSession {
   const secret = randomValueHex(16);
 
@@ -124,8 +124,8 @@ export function runOauth(): OauthSession {
     }
   });
 
-  // This is the callback for the DigitalOcean callback. It serves JavaScript that will
-  // extract the access token from the hash and post it back to our http server.
+  // Это обратный вызов для обратного вызова DigitalOcean. Он обслуживает JavaScript, который будет
+  // Извлеките токен доступа из хеша и отправьте его обратно на наш http-сервер..
   app.get('/', (request, response) => {
     response.send(`<html>
           <head><title>Authenticating...</title></head>
@@ -147,20 +147,20 @@ export function runOauth(): OauthSession {
   const rejectWrapper = {reject: (error: Error) => {}};
   const result = new Promise<string>((resolve, reject) => {
     rejectWrapper.reject = reject;
-    // This is the POST endpoint that receives the access token and redirects to either DigitalOcean
-    // for the user to complete their account creation, or to a page that closes the window.
+    // Это конечная точка POST, которая получает токен доступа и перенаправляет в DigitalOcean
+    // для пользователя, чтобы завершить создание своей учетной записи, или на страницу, которая закрывает окно.
     app.post('/', bodyParser.urlencoded({type: '*/*', extended: false}), (request, response) => {
       server.close();
 
       const params = new URLSearchParams(request.body.params);
       if (params.get('error')) {
-        response.status(400).send(closeWindowHtml('Authentication failed'));
+        response.status(400).send(closeWindowHtml('Ошибка аутентификации'));
         reject(new Error(`DigitalOcean OAuth error: ${params.get('error_description')}`));
         return;
       }
       const requestSecret = params.get('state');
       if (requestSecret !== secret) {
-        response.status(400).send(closeWindowHtml('Authentication failed'));
+        response.status(400).send(closeWindowHtml('Ошибка аутентификации'));
         reject(new Error(`Expected secret ${secret}. Got ${requestSecret}`));
         return;
       }
@@ -169,7 +169,7 @@ export function runOauth(): OauthSession {
         getAccount(accessToken)
             .then((account) => {
               if (account.status === 'active') {
-                response.send(closeWindowHtml('Authentication successful'));
+                response.send(closeWindowHtml('Аутентификация прошла успешно'));
               } else {
                 response.redirect('https://cloud.digitalocean.com');
               }
@@ -182,9 +182,9 @@ export function runOauth(): OauthSession {
       }
     });
 
-    // Unfortunately DigitalOcean matches the port in the redirect url against the registered ones.
-    // We registered the application 3 times with different ports, so we have fallbacks in case
-    // the first port is in use.
+    // К сожалению, DigitalOcean сопоставляет порт в URL перенаправления с зарегистрированными.
+    // Мы зарегистрировали приложение 3 раза с разными портами, поэтому у нас есть запасные варианты на случай
+    // первый порт используется.
     listenOnFirstPort(server, REGISTERED_REDIRECTS.map(e => e.port))
         .then((index) => {
           const {port, clientId} = REGISTERED_REDIRECTS[index];

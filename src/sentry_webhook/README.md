@@ -1,11 +1,11 @@
 # Outline Sentry Webhook
 
-The Outline Sentry webhook is a [Google Cloud Function](https://cloud.google.com/functions/) that receives a Sentry event and posts it to Salesforce.
+The Outline Sentry webhook is a [Google Cloud Function](https://cloud.google.com/functions/) который получает событие Sentry и публикует его в Salesforce.
 
 ## Requirements
 
 * [Google Cloud SDK](https://cloud.google.com/sdk/)
-* Access to Outline's Sentry account.
+* Доступ к учетной записи Sentry Outline.
 
 ## Build
 
@@ -28,8 +28,8 @@ To deploy:
 
 * Log in to Outline's [Sentry account](https://sentry.io/outlinevpn/)
 * Select a project (outline-client, outline-client-dev, outline-server, outline-server-dev).
-  * Note that this process must be repeated for all Sentry projects.
-* Enable the WebHooks plugin at `https://sentry.io/settings/outlinevpn/<project>/plugins/`
-* Set the webhook endpoint at `https://sentry.io/settings/outlinevpn/<project>/plugins/webhooks/`
-* Configure alerts to invoke the webhook at `https://sentry.io/settings/outlinevpn/<project>/alerts/`
-* Create rules to trigger the webhook at `https://sentry.io/settings/outlinevpn/<project>/alerts/rules/`
+* Обратите внимание, что этот процесс должен быть повторен для всех проектов Sentry.
+* Включить плагин WebHooks на `https://sentry.io/settings/outlinevpn/<project>/plugins/`
+* Установите конечную точку webhook на `https://sentry.io/settings/outlinevpn/<project>/plugins/webhooks/`
+* Настройте оповещения для вызова веб-крючка на `https://sentry.io/settings/outlinevpn/<project>/alerts/`
+* Создайте правила для запуска webhook на `https://sentry.io/settings/outlinevpn/<project>/alerts/rules/`
