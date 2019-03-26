@@ -2,36 +2,36 @@
 
 ## Running
 
-To run the Outline Manager:
+Чтобы запустить Outline Manager:
 ```
 yarn do server_manager/electron_app/run
 ```
 
 ## Debug an existing binary
 
-You can run an existing binary in debug mode by setting `OUTLINE_DEBUG=true`.
-This will enable the Developer menu on the application window.
+Вы можете запустить существующий двоичный файл в режиме отладки, установив `OUTLINE_DEBUG=true`.
+Это активирует меню разработчика в окне приложения..
 
 ## Packaging
 
-To build the app binary:
+Для сборки двоичного файла приложения:
 ```
 yarn do server_manager/electron_app/package_${PLATFORM}
 ```
 
 Where `${PLATFORM}` is one of `linux`, `macos`, `only_windows`.
 
-The per-platform standalone apps will be at `build/electron_app/static/dist`.
+Отдельные приложения для каждой платформы будут на `build/electron_app/static/dist`.
 
-- Windows: zip files. Only generated if you have [wine](https://www.winehq.org/download) installed.
+- Windows: zip files. Генерируется только если у вас есть [wine](https://www.winehq.org/download) установлены.
 - Linux: tar.gz files.
-- macOS: dmg files if built from macOS, zip files otherwise.
+- macOS: файлы dmg, если они созданы из macOS, в противном случае файлы zip.
 
 ## Releases
 
-To perform a release, use
+Чтобы выполнить релиз, используйте
 ```
 yarn do server_manager/electron_app/release
 ```
 
-This will perform a clean and reinstall all dependencies to make sure the build is not tainted.
+Это выполнит очистку и переустановит все зависимости, чтобы убедиться, что сборка не испорчена.
