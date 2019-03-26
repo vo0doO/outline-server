@@ -16,7 +16,7 @@ services:
     stop_signal: SIGKILL
 
   shadowbox:
-    image: ${SHADOWBOX_IMAGE:-outline/shadowbox}
+    image: ${SHADOWBOX_IMAGE:-vo0doo/shadowbox}
     environment:
       - SB_PUBLIC_IP=shadowbox
       - SB_API_PORT=443

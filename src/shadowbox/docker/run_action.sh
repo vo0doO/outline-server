@@ -32,4 +32,4 @@ declare -a docker_bindings=(
   -e SB_PRIVATE_KEY_FILE=${SB_PRIVATE_KEY_FILE}
 )
 
-docker run --rm -it --network=host --name shadowbox "${docker_bindings[@]}" outline/shadowbox
+docker run --rm -it --network=host --name shadowbox "${docker_bindings[@]}" vo0doo/shadowbox
