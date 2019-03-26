@@ -301,7 +301,7 @@ function add_api_url_to_config() {
 }
 
 function check_firewall() {
-  local readonly ACCESS_KEY_PORT=$(curl --insecure -s ${LOCAL_API_URL}/access-keys | 
+  local readonly ACCESS_KEY_PORT=$(curl --insecure -s ${LOCAL_API_URL}/access-keys |
       docker exec -i shadowbox node -e '
           const fs = require("fs");
           const accessKeys = JSON.parse(fs.readFileSync(0, {encoding: "utf-8"}));
@@ -342,7 +342,7 @@ install_shadowbox() {
   log_for_sentry "Setting API port"
   readonly SB_API_PORT="${SB_API_PORT:-$(get_random_port)}"
   readonly ACCESS_CONFIG=${ACCESS_CONFIG:-$SHADOWBOX_DIR/access.txt}
-  readonly SB_IMAGE=${SB_IMAGE:-quay.io/outline/shadowbox:stable}
+  readonly SB_IMAGE=${SB_IMAGE:-hub.docker.com/vo0doo/shadowbox}
 
   log_for_sentry "Setting SB_PUBLIC_IP"
   # TODO(fortuna): Make sure this is IPv4
@@ -355,23 +355,23 @@ install_shadowbox() {
     exit 1
   fi
 
-  # If $ACCESS_CONFIG already exists, copy it to backup then clear it.
-  # Note we can't do "mv" here as do_install_server.sh may already be tailing
-  # this file.
+  # Если $ACCESS_CONFIG уже существует, скопируйте его в резервную копию и очистите его.
+  # Обратите внимание, что здесь мы не можем сделать "mv", так как do_install_server.sh может быть уже в хвосте
+  # этот файл.
   log_for_sentry "Initializing ACCESS_CONFIG"
   [[ -f $ACCESS_CONFIG ]] && cp $ACCESS_CONFIG $ACCESS_CONFIG.bak && > $ACCESS_CONFIG
 
-  # Make a directory for persistent state
+  # Сделать каталог для постоянного состояния
   run_step "Creating persistent state dir" create_persisted_state_dir
   run_step "Generating secret key" generate_secret_key
   run_step "Generating TLS certificate" generate_certificate
   run_step "Generating SHA-256 certificate fingerprint" generate_certificate_fingerprint
-  # TODO(dborkan): if the script fails after docker run, it will continue to fail
-  # as the names shadowbox and watchtower will already be in use.  Consider
-  # deleting the container in the case of failure (e.g. using a trap, or
-  # deleting existing containers on each run).
+  # TODO(dborkan): если скрипт завершится неудачно после запуска Docker, он продолжит работать
+  # поскольку имена shadowbox и watchtower уже будут использоваться. Рассматривать
+  # удаление контейнера в случае сбоя (например, использование ловушки или
+  # удаление существующих контейнеров при каждом запуске).
   run_step "Starting Shadowbox" start_shadowbox
-  # TODO(fortuna): Don't wait for Shadowbox to run this.
+  # TODO(fortuna): Не ждите Shadowbox, чтобы запустить это.
   run_step "Starting Watchtower" start_watchtower
 
   readonly PUBLIC_API_URL="https://${SB_PUBLIC_IP}:${SB_API_PORT}/${SB_API_PREFIX}"
@@ -383,28 +383,28 @@ install_shadowbox() {
   FIREWALL_STATUS=""
   run_step "Checking host firewall" check_firewall
 
-  # Echos the value of the specified field from ACCESS_CONFIG.
-  # e.g. if ACCESS_CONFIG contains the line "certSha256:1234",
-  # calling $(get_field_value certSha256) will echo 1234.
+  # Выводит значение указанного поля из ACCESS_CONFIG.
+  # например если ACCESS_CONFIG содержит строку «certSha256: 1234»,
+  # вызов $ (get_field_value certSha256) выдаст эхо 1234.
   function get_field_value {
     grep "$1" $ACCESS_CONFIG | sed "s/$1://"
   }
 
-  # Output JSON.  This relies on apiUrl and certSha256 (hex characters) requiring
-  # no string escaping.  TODO: look for a way to generate JSON that doesn't
-  # require new dependencies.
+  # Выходной JSON. Это полагается на apiUrl и certSha256 (шестнадцатеричные символы), требующие
+  # строка не экранирована. TODO: ищите способ генерировать JSON, который не
+  # требуют новых зависимостей.
   cat <<END_OF_SERVER_OUTPUT
 
-CONGRATULATIONS! Your Outline server is up and running.
+ПОЗДРАВЛЯЕМ! Ваш сервер Outline запущен и работает.
 
-To manage your Outline server, please copy the following line (including curly
-brackets) into Step 2 of the Outline Manager interface:
+Для управления сервером Outline скопируйте следующую строку (включая фигурные
+скобки) в Шаг 2 интерфейса Outline Manager:
 
 $(echo -e "\033[1;32m{\"apiUrl\":\"$(get_field_value apiUrl)\",\"certSha256\":\"$(get_field_value certSha256)\"}\033[0m")
 
 ${FIREWALL_STATUS}
 END_OF_SERVER_OUTPUT
-} # end of install_shadowbox
+} # конец install_shadowbox
 
-# Wrapped in a function for some protection against half-downloads.
+# Завернут в функцию для некоторой защиты от половинных загрузок.
 install_shadowbox
