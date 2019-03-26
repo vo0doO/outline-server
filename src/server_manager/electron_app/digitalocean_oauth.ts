@@ -22,8 +22,8 @@ import * as request from 'request';
 
 const REGISTERED_REDIRECTS: Array<{clientId: string, port: number}> = [
   {clientId: '23b579be1d5e8ad7a44e1a4fab5e7f23118ad7559923e63af7008eb428c039eb', port: 55189},
-  {clientId: '4af51205e8d0d8f4a5b84a6b5ca9ea7124f914a5621b6a731ce433c2c7db533b', port: 60434},
-  {clientId: '706928a1c91cbd646c4e0d744c8cbdfbf555a944b821ac7812a7314a4649683a', port: 61437}
+  {clientId: '2b9e80dac7b43f4a91bece178d355777907a4ebf417c9b02002884032e98617f', port: 60434},
+  {clientId: '4bc1c979ac63cdaefefdb1172baff9b85c2b2e0755fe1cb708fbc7b528836f8b', port: 61437}
 ];
 
 function randomValueHex(len: number): string {
@@ -148,7 +148,8 @@ export function runOauth(): OauthSession {
   const result = new Promise<string>((resolve, reject) => {
     rejectWrapper.reject = reject;
     // Это конечная точка POST, которая получает токен доступа и перенаправляет в DigitalOcean
-    // для пользователя, чтобы завершить создание своей учетной записи, или на страницу, которая закрывает окно.
+    // для пользователя, чтобы завершить создание своей учетной записи, или на страницу, которая
+    // закрывает окно.
     app.post('/', bodyParser.urlencoded({type: '*/*', extended: false}), (request, response) => {
       server.close();
 
@@ -183,8 +184,8 @@ export function runOauth(): OauthSession {
     });
 
     // К сожалению, DigitalOcean сопоставляет порт в URL перенаправления с зарегистрированными.
-    // Мы зарегистрировали приложение 3 раза с разными портами, поэтому у нас есть запасные варианты на случай
-    // первый порт используется.
+    // Мы зарегистрировали приложение 3 раза с разными портами, поэтому у нас есть запасные варианты
+    // на случай первый порт используется.
     listenOnFirstPort(server, REGISTERED_REDIRECTS.map(e => e.port))
         .then((index) => {
           const {port, clientId} = REGISTERED_REDIRECTS[index];
