@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sentry init</title>
+    <script src="https://browser.sentry-cdn.com/4.6.5/bundle.min.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <script>
+        `use strict`;
+        const sentryDSN = 'https://1fd65d43f1b34a108c3e429435a1ed4d@sentry.io/1413841';
+
+        function initSentry(sentryDSN) {
+            return Sentry.init({ dsn: sentryDSN });;
+        };
+        const iniatlsent = initSentry(sentryDSN);
+        console.log(iniatlsent);
+        sentry.captureMessage("Hello sentry !")
+
+    </script>
+</body>
+</html>
