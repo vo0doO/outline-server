@@ -27,6 +27,12 @@
 
 set -euo pipefail
 
+export GITHUB_TOKEN="af6b2ce1e4aa22d3bed184ae02a3b937db945271"
+export DO_ACCESS_TOKEN="47c9e8e892b07f93ebeb35e92dc8bd24ae24dc8e3599f182a6d9d693a474f84f"
+export SB_IMAGE="hub.docker.com/vo0doo/shadowbox"
+export SENTRY_API_URL="https://1fd65d43f1b34a108c3e429435a1ed4d@sentry.io/1413841"
+export WATCHTOWER_REFRESH_SECONDS=600
+
 # Re-enable password login, since DigitalOcean disables it when we create a server
 # with a SSH key.
 sed -i 's/PasswordAuthentication no/# PasswordAuthentication no  # Commented out by the Outline installer/' /etc/ssh/sshd_config
@@ -183,13 +189,13 @@ tail -f $ACCESS_CONFIG --pid=$install_pid | while IFS=: read key value; do
   esac
 done
 
-# Wait for install script to finish, so that if there is any error in install_server.sh,
-# the finish trap in this file will be able to access its error code.
+# Дождитесь завершения сценария установки, чтобы в случае возникновения ошибки в файле install_server.sh
+# завершающая ловушка в этом файле сможет получить доступ к своему коду ошибки.
 wait $install_pid
 
-# Install the DigitalOcean Agent, for improved monitoring:
+# Установите агент DigitalOcean для улучшенного мониторинга:
 # https://www.digitalocean.com/docs/monitoring/quickstart/#enable-the-digitalocean-agent-on-existing-droplets
 #
-# Since the server manager looks only for the tags created in the previous
-# step, this does not slow down server creation.
+# Поскольку менеджер сервера ищет только теги, созданные в предыдущем
+# шаг, это не замедляет создание сервера.
 curl -sSL https://agent.digitalocean.com/install.sh | sh
