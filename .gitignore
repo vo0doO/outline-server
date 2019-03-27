@@ -6,3 +6,4 @@ node_modules/
 yarn-error.log
 /.idea/dbnavigator.xml
 /common.env
+/.idea/workspace.xml
