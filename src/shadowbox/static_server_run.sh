@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 
-export SHADOWBOX_DIR=/home/vo0/Programs/ss  \
-&& docker build -t vo0doo/shadowbox /home/vo0/WebstormProjects/outline-server/ -f Dockerfile  \
-&& bash ../../server_manager/install_scripts/install_server.sh  \
+docker build -t vo0doo/shadowbox /home/vo0/WebstormProjects/outline-server/ -f docker/Dockerfile  \
+&& bash /home/vo0/WebstormProjects/outline-server/src/server_manager/install_scripts/install_server.sh  \
 && sudo ufw allow 8091/tcp  \
 && sudo ufw allow 2548/tcp  \
 && sudo ufw allow 2548/udp

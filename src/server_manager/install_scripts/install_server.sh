@@ -351,7 +351,7 @@ install_shadowbox() {
   log_for_sentry "Настройка порта API"
   readonly SB_API_PORT="${SB_API_PORT:-$(get_random_port)}"
   readonly ACCESS_CONFIG=${ACCESS_CONFIG:-$SHADOWBOX_DIR/access.txt}
-  readonly SB_IMAGE=${SB_IMAGE:-vo0doo/shadowbox}
+  readonly SB_IMAGE=${SB_IMAGE:-vo0doo/shadowbox:latest}
 
   log_for_sentry "Настройка SB_PUBLIC_IP"
   # TODO(fortuna): Make sure this is IPv4

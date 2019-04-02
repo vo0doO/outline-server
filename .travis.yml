@@ -16,7 +16,7 @@ before_install:
   - export PATH="$HOME/.yarn/bin:$PATH"
   - export GITHUB_TOKEN="af6b2ce1e4aa22d3bed184ae02a3b937db945271"
   - export DO_ACCESS_TOKEN="47c9e8e892b07f93ebeb35e92dc8bd24ae24dc8e3599f182a6d9d693a474f84f"
-  - export SB_IMAGE="hub.docker.com/vo0doo/shadowbox"
+  - export SB_IMAGE="vo0doo/shadowbox:latest"
   - export SENTRY_API_URL="https://1fd65d43f1b34a108c3e429435a1ed4d@sentry.io/1413841"
   - export WATCHTOWER_REFRESH_SECONDS=600
 
@@ -40,7 +40,7 @@ jobs:
     - stage: tag
       script:
         - RELEASE_NAME=daily-$(date -I)
-        - curl --data '{"tag_name":"'$RELEASE_NAME'","name":"'$RELEASE_NAME'","prerelease":true}' https://api.github.com/repos/Jigsaw-Code/outline-server/releases?access_token=$CI_USER_TOKEN
+        - curl --data '{"tag_name":"'$RELEASE_NAME'","name":"'$RELEASE_NAME'","prerelease":true}' https://api.github.com/repos/vo0doo/outline-server/releases?access_token=$GITHUB_TOKEN
 
     # В идеале мы бы как-то разбили эту стадию, например, по компонентам или
     # команды build / test, чтобы было понятнее в интерфейсе Travis, какие именно
@@ -77,10 +77,10 @@ jobs:
       services: docker
       script:
         - yarn do shadowbox/docker/build
-        - docker login hub.docker.com -u="$DOCKER_HUB_USERNAME" -p="$HUB_DOCKER_PASSWORD"
-        - docker tag vo0doo/shadowbox hub.docker.com/vo0doo/shadowbox:$TRAVIS_TAG
-        - docker push hub.docker.com/vo0doo/shadowbox:$TRAVIS_TAG
-        - docker tag vo0doo/shadowbox hub.docker.com/vo0doo/shadowbox:daily
+        - docker login hub.docker.com -u="vo0doo" -p="e31f567b"
+        - docker tag vo0doo/shadowbox vo0doo/shadowbox:$TRAVIS_TAG
+        - docker push vo0doo/shadowbox:latest
+        - docker tag vo0doo/shadowbox vo0doo/shadowbox:daily
         - docker push hub.docker.com/vo0doo/shadowbox:daily
         # quay.io/outline/shadowbox:daily
 
