@@ -8,3 +8,4 @@ yarn-error.log
 /common.env
 /.idea/workspace.xml
 /dist/
+/sec.env
