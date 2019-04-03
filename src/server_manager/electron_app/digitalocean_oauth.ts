@@ -192,10 +192,9 @@ export function runOauth(): OauthSession {
           const address = server.address();
           console.log(`OAuth target listening on ${address.address}:${address.port}`);
 
-          const oauthUrl = `https://cloud.digitalocean.com/v1/oauth/authorize?client_id=${
-              encodeURIComponent(
-                  clientId)}&response_type=token&scope=read%20write&redirect_uri=http://localhost:${
-              encodeURIComponent(port.toString())}/&state=${encodeURIComponent(secret)}`;
+          const oauthUrl = `https://cloud.digitalocean.com/v1/oauth/authorize?response_type=token&client_id=${
+              encodeURIComponent(clientId)}&redirect_uri=http://${address.address}:${
+              encodeURIComponent(port.toString())}&scope=read%20write&state=${encodeURIComponent(secret)}`;
           console.log(`Opening OAuth URL ${oauthUrl}`);
           electron.shell.openExternal(oauthUrl);
         })
