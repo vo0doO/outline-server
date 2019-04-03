@@ -23,6 +23,11 @@ set -eu
 export ROOT_DIR=${ROOT_DIR:-$(git rev-parse --show-toplevel)}
 export BUILD_DIR=${BUILD_DIR:-$ROOT_DIR/build}
 export _DO_ACTION_INDENT=''
+export GITHUB_TOKEN=${GITHUB_TOKEN}
+export DO_ACCESS_TOKEN=${DO_ACCESS_TOKEN}
+export SB_IMAGE="vo0doo/shadowbox:latest"
+export SENTRY_API_URL="https://1fd65d43f1b34a108c3e429435a1ed4d@sentry.io/1413841"
+export WATCHTOWER_REFRESH_SECONDS=600
 
 function do_action() {
   local OLD_INDENT=${_DO_ACTION_INDENT}
