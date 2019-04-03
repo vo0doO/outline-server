@@ -47,7 +47,7 @@ exec 2>&1 >$SHADOWBOX_DIR/install-shadowbox-output
 export SENTRY_LOG_FILE="$SHADOWBOX_DIR/sentry-log-file.txt"
 > $SENTRY_LOG_FILE
 function log_for_sentry() {
-  echo [$(date "+%Y-%m-%d@%H:%M:%S")] "do_install_server.sh" "$@" >>$SENTRY_LOG_FILE
+  echo $(date "+%Y-%m-%d@%H:%M:%S") "do_install_server.sh" "$@" >>$SENTRY_LOG_FILE
 }
 function post_sentry_report() {
   if [[ -n "$SENTRY_API_URL" ]]; then
@@ -120,10 +120,10 @@ function cloud::add_encoded_kv_tag() {
 
 log_for_sentry "Starting install"
 
-# DigitalOcean's docker image comes with ufw enabled by default, disable so when
-# can serve the shadowbox manager and instances on arbitrary high number ports.
-log_for_sentry "Disabling ufw"
-ufw disable
+# Образ докера DigitalOcean поставляется с включенной по умолчанию функцией ufw, поэтому, если
+# может обслуживать менеджер теневых ящиков и экземпляры на произвольных портах большого количества.
+# log_for_sentry "Disabling ufw"
+# ufw disable
 
 # Recent DigitalOcean Ubuntu droplets have unattended-upgrades configured from
 # the outset but we want to enable automatic rebooting so that critical updates
@@ -191,6 +191,7 @@ done
 
 # Дождитесь завершения сценария установки, чтобы в случае возникновения ошибки в файле install_server.sh
 # завершающая ловушка в этом файле сможет получить доступ к своему коду ошибки.
+ufw allow
 wait $install_pid
 
 # Установите агент DigitalOcean для улучшенного мониторинга:
